@@ -135,6 +135,7 @@ pytest -q
 - **Low semantic quality**: install `sentence-transformers` optional dependency.
 - **Slow on huge PDFs**: use higher threshold/lower top-K and ingest once (cached vectors).
 - **No mic support**: browser may not expose SpeechRecognition; typed mode still works.
+- **`pip install -e .[test]` fails with `Multiple top-level packages discovered`**: use the latest repo version that includes explicit setuptools package discovery in `pyproject.toml`; then rerun install.
 
 ## Security / privacy
 
