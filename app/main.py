@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
+from uuid import uuid4
 
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -49,17 +50,23 @@ def root() -> FileResponse:
 
 @app.post("/api/upload")
 def upload_pdf(file: UploadFile = File(...)) -> dict:
-    if not file.filename.lower().endswith(".pdf"):
+    original_name = Path(file.filename or "").name
+    if not original_name.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
-    target = PDF_DIR / file.filename
+    safe_name = f"{uuid4().hex}.pdf"
+    target = (PDF_DIR / safe_name).resolve()
+    pdf_root = PDF_DIR.resolve()
+    if pdf_root not in target.parents:
+        raise HTTPException(status_code=400, detail="Invalid upload filename")
+
     with target.open("wb") as out:
         shutil.copyfileobj(file.file, out)
 
     pages = extract_pages(str(target))
 
     with SessionLocal() as db:
-        doc = Document(filename=file.filename, filepath=str(target), page_count=len(pages))
+        doc = Document(filename=original_name, filepath=str(target), page_count=len(pages))
         db.add(doc)
         db.flush()
 

@@ -93,7 +93,17 @@ function renderResults(passages) {
   el.results.innerHTML = '';
   passages.forEach((p) => {
     const li = document.createElement('li');
-    li.innerHTML = `<b>p.${p.page}</b> score=${p.score.toFixed(3)}<div class='small'>${p.snippet}</div>`;
+
+    const heading = document.createElement('b');
+    heading.textContent = `p.${p.page}`;
+    li.appendChild(heading);
+    li.appendChild(document.createTextNode(` score=${p.score.toFixed(3)}`));
+
+    const snippet = document.createElement('div');
+    snippet.className = 'small';
+    snippet.textContent = p.snippet;
+    li.appendChild(snippet);
+
     li.onclick = () => showPdf(p.page);
     el.results.appendChild(li);
   });
