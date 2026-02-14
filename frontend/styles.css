@@ -9,7 +9,7 @@ button { cursor: pointer; }
 #queryInput { flex: 1; }
 #pdfFrame { width: 100%; height: 100%; border: 1px solid #2f3b55; border-radius: 8px; background: #fff; }
 .timeline-wrap { border: 1px solid #2f3b55; border-radius: 8px; overflow-x: auto; background: #0f1521; }
-#timeline { width: 100%; height: 220px; }
+#timeline { width: 100%; height: 220px; cursor: crosshair; }
 label { display: block; margin-bottom: 8px; }
 ul { padding-left: 18px; }
 li { margin-bottom: 8px; }

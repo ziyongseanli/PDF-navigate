@@ -117,16 +117,8 @@ async function loadHistory() {
   });
 }
 
-function drawTimeline(scores, rawScores = null) {
-  const canvas = el.timeline;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
+function _drawTimelineBase(ctx, w, h, n, scores) {
   ctx.clearRect(0, 0, w, h);
-
-  const n = scores.length || state.pageCount;
-  if (!n) return;
-
   ctx.fillStyle = '#0f1521';
   ctx.fillRect(0, 0, w, h);
 
@@ -149,6 +141,18 @@ function drawTimeline(scores, rawScores = null) {
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
+}
+
+function drawTimeline(scores, rawScores = null) {
+  const canvas = el.timeline;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  const n = scores.length || state.pageCount;
+  if (!n) return;
+
+  _drawTimelineBase(ctx, w, h, n, scores);
 
   const cx = ((state.currentPage - 1) / Math.max(1, n - 1)) * w;
   ctx.beginPath();
@@ -159,20 +163,64 @@ function drawTimeline(scores, rawScores = null) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  canvas.onclick = (ev) => {
+  let dragging = false;
+  let dragIdx = 0;
+
+  function idxFromEvent(ev) {
     const rect = canvas.getBoundingClientRect();
     const x = ev.clientX - rect.left;
-    const idx = Math.round((x / rect.width) * (n - 1));
-    showPdf(idx + 1);
-    drawTimeline(scores, rawScores);
+    return Math.max(0, Math.min(n - 1, Math.round((x / rect.width) * (n - 1))));
+  }
+
+  function drawMarkerAt(idx) {
+    _drawTimelineBase(ctx, w, h, n, scores);
+    const cx = (idx / Math.max(1, n - 1)) * w;
+    ctx.beginPath();
+    ctx.strokeStyle = '#ffffff';
+    ctx.setLineDash([4, 4]);
+    ctx.moveTo(cx, 0);
+    ctx.lineTo(cx, h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  canvas.onmousedown = (ev) => {
+    dragging = true;
+    dragIdx = idxFromEvent(ev);
+    drawMarkerAt(dragIdx);
   };
 
   canvas.onmousemove = (ev) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = ev.clientX - rect.left;
-    const idx = Math.round((x / rect.width) * (n - 1));
+    const idx = idxFromEvent(ev);
     const score = scores[idx] || 0;
     canvas.title = `Page ${idx + 1} • score ${score.toFixed(3)}${rawScores ? ` • raw ${(rawScores[idx] || 0).toFixed(3)}` : ''}`;
+    if (dragging) {
+      dragIdx = idx;
+      drawMarkerAt(dragIdx);
+    }
+  };
+
+  canvas.onmouseup = (ev) => {
+    if (dragging) {
+      dragging = false;
+      dragIdx = idxFromEvent(ev);
+      showPdf(dragIdx + 1);
+      drawTimeline(scores, rawScores);
+    }
+  };
+
+  canvas.onmouseleave = (ev) => {
+    if (dragging) {
+      dragging = false;
+      showPdf(dragIdx + 1);
+      drawTimeline(scores, rawScores);
+    }
+  };
+
+  canvas.onclick = (ev) => {
+    const idx = idxFromEvent(ev);
+    showPdf(idx + 1);
+    drawTimeline(scores, rawScores);
   };
 }
 
