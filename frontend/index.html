@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Navigator</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>PDF Navigator</h1>
+      <input id="fileInput" type="file" accept="application/pdf" />
+      <select id="documentSelect"></select>
+      <span id="status"></span>
+    </header>
+    <main>
+      <section class="left">
+        <div class="search-row">
+          <input id="queryInput" placeholder="Ask vaguely: e.g., where do they discuss risk factors?" />
+          <button id="voiceBtn">🎤</button>
+          <button id="searchBtn">Search</button>
+        </div>
+        <div class="timeline-wrap">
+          <canvas id="timeline" width="1000" height="220"></canvas>
+        </div>
+        <iframe id="pdfFrame" title="pdf"></iframe>
+      </section>
+      <aside class="right">
+        <label>Smoothing <input id="smoothing" type="range" min="0" max="10" step="0.5" value="2" /></label>
+        <label>Threshold <input id="threshold" type="range" min="0" max="1" step="0.05" value="0" /></label>
+        <label>Top K <input id="topK" type="number" min="1" max="100" value="10" /></label>
+        <button id="exportBtn">Export JSON/CSV</button>
+        <h3>Top passages</h3>
+        <ul id="results"></ul>
+        <h3>Search history</h3>
+        <ul id="history"></ul>
+      </aside>
+    </main>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

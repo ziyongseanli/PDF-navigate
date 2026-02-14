@@ -1,0 +1,35 @@
+[project]
+name = "pdf-navigator"
+version = "0.1.0"
+description = "Local PDF relevance navigator with wave timeline"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.111.0",
+  "uvicorn[standard]>=0.30.0",
+  "pypdf>=4.2.0",
+  "numpy>=1.26.0",
+  "scikit-learn>=1.5.0",
+  "sqlalchemy>=2.0.0",
+  "python-multipart>=0.0.9",
+  "jinja2>=3.1.4",
+  "aiofiles>=23.2.1",
+  "pywebview>=5.1",
+]
+
+[project.optional-dependencies]
+local-embeddings = ["sentence-transformers>=3.0.1"]
+test = ["pytest>=8.2.0", "httpx>=0.27.0", "reportlab>=4.2.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
