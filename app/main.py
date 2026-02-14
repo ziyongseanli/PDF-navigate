@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from core.config import PDF_DIR
+from core.config import DATA_DIR, PDF_DIR
 from core.db import Document, Page, QueryHistory, SessionLocal, init_db
 from core.embeddings import EmbeddingService
 from core.search import (
@@ -49,7 +49,7 @@ def root() -> FileResponse:
 
 @app.post("/api/upload")
 def upload_pdf(file: UploadFile = File(...)) -> dict:
-    if not file.filename.lower().endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
     target = PDF_DIR / file.filename
@@ -105,15 +105,15 @@ def get_history(document_id: int) -> list[dict]:
             .limit(15)
             .all()
         )
-    return [
-        {
-            "query": r.query,
-            "smoothing": r.smoothing,
-            "threshold": r.threshold,
-            "top_k": r.top_k,
-        }
-        for r in rows
-    ]
+        return [
+            {
+                "query": r.query,
+                "smoothing": r.smoothing,
+                "threshold": r.threshold,
+                "top_k": r.top_k,
+            }
+            for r in rows
+        ]
 
 
 @app.post("/api/search")
@@ -172,7 +172,7 @@ def search(req: QueryRequest) -> dict:
 
 @app.post("/api/export/{document_id}")
 def export_results(document_id: int, payload: dict) -> dict:
-    out_dir = Path("data") / "exports"
+    out_dir = DATA_DIR / "exports"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     base = out_dir / f"doc_{document_id}_results"
